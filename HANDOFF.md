@@ -75,8 +75,11 @@ window.cart.remove(id)
 
 // Events
 window.addEventListener('cart-updated', (e) => { /* e.detail = cart state */ })
+window.addEventListener('fdf:product-ready', (e) => { /* e.detail = resolved product, fires once product.html finishes rendering */ })
+window.addEventListener('fdf:product-not-found', (e) => { /* e.detail.requestedId = the id/slug that didn't match anything */ })
 ```
 
+**On `product.html` specifically**: this page is a single template shared by all 68 products via `?slug=` or `?id=`. It was originally captured from one real product on the live site, so its `<title>`, meta tags, canonical link, and JSON-LD `Product` schema all start out hardcoded to that one product on page load, before any JS runs. `renderProductPage()` overwrites every one of those surfaces once the real product resolves — if you're reading page metadata for context (title, og:title, JSON-LD, etc.), prefer waiting for the `fdf:product-ready` event or checking `window.currentProduct` over reading `document.title` at an arbitrary time, since there's an unavoidable window between page load and the async `products.json` fetch completing where the title reads as a neutral "Loading product…" placeholder rather than the real product name. If you must read synchronously, know that it will say "Loading product…" (not the real product, and not the stale captured one) during that window.
 ## 5. How this maps to the 11 friction points Mike scoped with the client
 
 | # | Friction point | API to use | Status |
@@ -103,6 +106,7 @@ window.addEventListener('cart-updated', (e) => { /* e.detail = cart state */ })
 4. **Checkout is not functional** — cart add/remove/update all work and persist via localStorage, but there's no payment flow. The cart page has a checkout CTA that is a non-functional stub.
 5. **A handful of legacy Next.js scaffolding files remain in the repo root** (`app/`, `components/`, `lib/`, `next.config.js` was removed but `pages-captured/`, `category.html`, `progress.html` are stray leftovers from earlier iterations). They're harmless (not linked from any live page) but worth a cleanup pass before this repo is handed to another team long-term.
 6. **A pile of one-off debug/test scripts live in the repo root** (`debug-*.js`, `test-*.js`, `check-errors.js`, `find-404.js`, `quick-test-products.js`, `verify-product-page.js`) — these were used to diagnose the Vercel deployment issue during this session (see §7) and aren't part of the site itself. Safe to delete or move to a `/scripts` folder.
+7. ~~Product page metadata (title/og/JSON-LD) didn't match the loaded product~~ — **Resolved.** `product.html` is a single template shared by all 68 products, captured from one real product on the live site — its `<title>`, meta tags, canonical link, and JSON-LD `Product` schema were baked in and only `document.title` ever got overwritten on render. Any structured-data-aware reader (og:title, JSON-LD, etc.) saw the wrong product every time, and there was a timing race where Navigator's deferred `wa-agent.js` could read state before the real product resolved at all. Full writeup of the fix and the new `fdf:product-ready`/`fdf:product-not-found` events is in §4. The bug report's example slug (`prestige-laminate-flooring-7mm-dusky-grey-oak-3532`) turned out not to exist in the mock at all — it's now product #68, added with real scraped data.
 
 ## 7. Deployment notes (for whoever maintains this next)
 
