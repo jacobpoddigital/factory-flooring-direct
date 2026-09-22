@@ -4,17 +4,43 @@
     "name": "Premium Foam Underlay",
     "category": "Underlay",
     "price": 399,
-    "description": "3mm premium foam underlay with moisture barrier",
-    "compatible_with": ["Laminate", "Engineered Wood"],
+    "description": "3mm premium foam underlay, general purpose (no moisture barrier)",
+    "compatible_with": ["Engineered Wood"],
     "specifications": {
       "thickness": "3mm",
       "material": "Polyethylene foam",
-      "moisture_barrier": true,
+      "moisture_barrier": false,
       "acoustic_rating": "Good",
       "underfloor_heating": false
     },
     "quantity_unit": "m²",
-    "installation_notes": "Lay before flooring installation, overlap seams by 5cm"
+    "installation_notes": "Lay before flooring installation, overlap seams by 5cm. Not recommended for laminate needing moisture protection — see Underlay Supreme (acc-015) instead."
+  },
+  {
+    "id": "acc-015",
+    "name": "Underlay Supreme With Moisture Barrier EWA2",
+    "sku": "EWA2",
+    "category": "Underlay",
+    "price": 2956,
+    "price_basis": "per roll (10m² coverage)",
+    "price_per_sqm": 296,
+    "description": "3mm poly cell foam underlay with integrated plastic vapour membrane, purpose-built for laminate and engineered wood on timber or concrete subfloors",
+    "source": "Real product, scraped from live site: https://www.factory-direct-flooring.co.uk/underlay-supreme-with-moisture-barrier-ewa2",
+    "compatible_with": ["Laminate", "Engineered Wood"],
+    "specifications": {
+      "thickness": "3mm",
+      "material": "Poly cell foam",
+      "moisture_barrier": true,
+      "moisture_barrier_detail": "Integrated plastic vapour membrane, lay barrier side down, seams overlap to maintain seal",
+      "acoustic_rating": "Good — reduces reflective and transit sound",
+      "underfloor_heating": false,
+      "subfloor_suitability": ["timber", "concrete"],
+      "weight": "1kg per roll"
+    },
+    "quantity_unit": "roll (10m²)",
+    "pack_coverage_sqm": 10,
+    "installation_notes": "Lightweight, dust-free, easy to handle. Foam takes out slight unevenness in the subfloor. Lay moisture barrier side down with seam overlap to maintain the seal. Floor Life warranty included.",
+    "recommended_for": "Laminate on timber or concrete subfloor where moisture protection is wanted"
   },
   {
     "id": "acc-002",

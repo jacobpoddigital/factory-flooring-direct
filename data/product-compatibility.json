@@ -9,20 +9,20 @@
       "cross_sell": ["acc-002"]
     },
     "Engineered Wood": {
-      "underlay": ["acc-001", "acc-002"],
+      "underlay": ["acc-001", "acc-002", "acc-015"],
       "trims": ["acc-004", "acc-005", "acc-006"],
       "adhesives": ["acc-007", "acc-008"],
       "tools": ["acc-010", "acc-011"],
       "maintenance": ["acc-012", "acc-013"],
-      "cross_sell": ["acc-001", "acc-002"]
+      "cross_sell": ["acc-002", "acc-015"]
     },
     "Laminate": {
-      "underlay": ["acc-001"],
+      "underlay": ["acc-015"],
       "trims": ["acc-004", "acc-005", "acc-006"],
       "adhesives": ["acc-008"],
       "tools": ["acc-009", "acc-010", "acc-011"],
       "maintenance": ["acc-012", "acc-014"],
-      "cross_sell": ["acc-001"]
+      "cross_sell": ["acc-015"]
     },
     "Vinyl": {
       "underlay": ["acc-003"],
@@ -44,8 +44,8 @@
   "scenario_bundles": {
     "kitchen_heavy_use": {
       "description": "Complete kitchen flooring solution with protection",
-      "accessories": ["acc-001", "acc-004", "acc-007", "acc-010", "acc-011", "acc-012", "acc-013"],
-      "reason": "Kitchen needs underlayment for moisture protection, trims for finish, adhesive, tools, and ongoing maintenance"
+      "accessories": ["acc-015", "acc-004", "acc-007", "acc-010", "acc-011", "acc-012", "acc-013"],
+      "reason": "Kitchen needs underlayment with a moisture barrier (acc-015), trims for finish, adhesive, tools, and ongoing maintenance"
     },
     "underfloor_heating": {
       "description": "Specialized solution for underfloor heating systems",
@@ -71,8 +71,13 @@
   "cross_sell_rules": {
     "acc-001": {
       "name": "Premium Foam Underlay",
+      "upsell_to": ["acc-012"],
+      "reason": "General-purpose underlay buyers (engineered wood, no moisture barrier needed) may still want a cleaning kit"
+    },
+    "acc-015": {
+      "name": "Underlay Supreme With Moisture Barrier EWA2",
       "upsell_to": ["acc-008", "acc-012"],
-      "reason": "If customer chooses foam underlay, they may need laminate adhesive and cleaning kit"
+      "reason": "Laminate/engineered wood customers buying moisture-barrier underlay likely need laminate adhesive and a cleaning kit too"
     },
     "acc-002": {
       "name": "Cork Underlay with Moisture Barrier",
