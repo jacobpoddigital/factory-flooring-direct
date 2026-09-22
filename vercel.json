@@ -1,5 +1,15 @@
 {
   "framework": null,
   "buildCommand": "npm install",
-  "outputDirectory": null
+  "functions": {
+    "api/index.js": {
+      "runtime": "nodejs20"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/api"
+    }
+  ]
 }
