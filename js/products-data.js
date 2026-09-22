@@ -179,11 +179,38 @@ function neutralizeStaleProductMetadata() {
   if (canonical) canonical.setAttribute('href', window.location.pathname + window.location.search);
 
   removeProductJsonLd();
+  updateBreadcrumbJsonLd('Loading…', window.location.href);
+  const staleBreadcrumb = document.querySelector('.breadcrumbs [aria-current="page"]');
+  if (staleBreadcrumb) staleBreadcrumb.textContent = 'Loading…';
 }
 
 function setMetaContent(selector, value) {
   const el = document.querySelector(selector);
   if (el) el.setAttribute('content', value);
+}
+
+// The captured page ships a SEPARATE JSON-LD block for the breadcrumb trail
+// (@type "BreadcrumbList", not "Product") whose last item hardcodes the
+// originally-captured product's name/URL. removeProductJsonLd() deliberately
+// only targets @type "Product" and never touched this one, so it stayed
+// wrong forever regardless of which real product loaded — a second reader
+// surface (alongside the breadcrumb DOM fix above) that could report the
+// wrong "current page" identity.
+function updateBreadcrumbJsonLd(name, url) {
+  document.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
+    try {
+      const data = JSON.parse(script.textContent);
+      if (data['@type'] !== 'BreadcrumbList' || !Array.isArray(data.itemListElement)) return;
+      const last = data.itemListElement[data.itemListElement.length - 1];
+      if (last && last.item) {
+        last.item.name = name;
+        if (url) last.item['@id'] = url;
+        script.textContent = JSON.stringify(data);
+      }
+    } catch (e) {
+      // not JSON-LD we care about, leave it alone
+    }
+  });
 }
 
 function removeProductJsonLd() {
@@ -208,6 +235,9 @@ function renderProductNotFound(requestedId) {
   setMetaContent('meta[property="og:title"]', 'Product Not Found');
   setMetaContent('meta[name="description"]', `No product matches "${requestedId}".`);
   setMetaContent('meta[property="og:description"]', `No product matches "${requestedId}".`);
+  updateBreadcrumbJsonLd('Product Not Found', window.location.href);
+  const staleBreadcrumb = document.querySelector('.breadcrumbs [aria-current="page"]');
+  if (staleBreadcrumb) staleBreadcrumb.textContent = 'Product Not Found';
   window.currentProduct = null;
   window.dispatchEvent(new CustomEvent('fdf:product-not-found', { detail: { requestedId } }));
 }
@@ -278,14 +308,26 @@ function renderProductPage(product) {
     images[0].alt = product.name;
   }
 
-  // Update breadcrumb
-  const breadcrumb = document.querySelector('.breadcrumb');
+  // Update breadcrumb — was '.breadcrumb' (selector typo, no such class exists;
+  // the real element is `<nav class="breadcrumbs">`, plural), so this whole
+  // block silently no-op'd on every page load and the visible "current page"
+  // breadcrumb text stayed on the originally-captured product forever.
+  const breadcrumb = document.querySelector('.breadcrumbs');
   if (breadcrumb) {
     const categoryLink = breadcrumb.querySelector('a[href*="flooring"]');
     if (categoryLink) {
       categoryLink.textContent = product.category;
     }
+    // The final breadcrumb item (aria-current="page") shows the product
+    // name itself — this is the most likely thing a page-context reader
+    // (including Navigator) picks up as "what page is this," and it was
+    // never updated at all, even when the selector above worked.
+    const currentPage = breadcrumb.querySelector('[aria-current="page"]');
+    if (currentPage) {
+      currentPage.textContent = product.name;
+    }
   }
+  updateBreadcrumbJsonLd(product.name, pageUrl);
 
   // Ensure cart integration works
   if (window.cart) {
