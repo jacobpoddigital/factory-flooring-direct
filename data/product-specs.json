@@ -45,6 +45,32 @@
     "color": "Oak",
     "surface_treatment": "Matt lacquer"
   },
+  "69129": {
+    "thickness": "7mm",
+    "wear_rating": "AC3",
+    "warranty": "15 years domestic",
+    "look": "Dusky Grey Oak laminate, wide plank",
+    "finish": "Embossed wood-effect finish",
+    "suitability": {
+      "kitchen": true,
+      "bathroom": false,
+      "living_room": true,
+      "bedroom": true,
+      "pets": true,
+      "underfloor_heating": true,
+      "commercial": false,
+      "heavy_traffic": true
+    },
+    "installation": "Click system, floating",
+    "underlay_needed": true,
+    "maintenance": "Sweep and damp mop only, avoid excess water",
+    "plank_width": "193mm (1380mm long)",
+    "color": "Dusky Grey Oak",
+    "surface_treatment": "Factory pre-finished",
+    "pack_coverage_sqm": 2.397,
+    "planks_per_pack": 9,
+    "source": "Real product, scraped from live site JSON-LD"
+  },
   "170632": {
     "thickness": "8mm",
     "wear_rating": "AC4",

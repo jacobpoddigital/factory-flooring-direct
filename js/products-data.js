@@ -154,12 +154,74 @@ function getDeliveryFAQ() {
   return (window.deliveryInfo && window.deliveryInfo.faq) || [];
 }
 
+// The template pages (product.html) were captured from ONE real product on the
+// live site, so their <title>, <meta>, <link rel="canonical">, and JSON-LD Product
+// schema are all hardcoded to that one product. Anything reading page metadata
+// (SEO tags, structured data, or a third-party script like Navigator) will see
+// that stale product forever unless we overwrite every one of those surfaces
+// here — updating document.title alone is not enough.
+//
+// Call this the instant the script runs (not gated behind an async data load)
+// so nothing downstream — including deferred third-party scripts that execute
+// before DOMContentLoaded — can observe the stale baked-in product identity.
+function neutralizeStaleProductMetadata() {
+  const placeholder = 'Loading product… | Factory Direct Flooring';
+  document.title = placeholder;
+
+  setMetaContent('meta[name="title"]', 'Loading product…');
+  setMetaContent('meta[name="description"]', 'Loading product details…');
+  setMetaContent('meta[property="og:title"]', 'Loading product…');
+  setMetaContent('meta[property="og:description"]', 'Loading product details…');
+  setMetaContent('meta[property="og:url"]', window.location.href);
+  setMetaContent('meta[property="product:price:amount"]', '');
+
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.setAttribute('href', window.location.pathname + window.location.search);
+
+  removeProductJsonLd();
+}
+
+function setMetaContent(selector, value) {
+  const el = document.querySelector(selector);
+  if (el) el.setAttribute('content', value);
+}
+
+function removeProductJsonLd() {
+  document.querySelectorAll('script[type="application/ld+json"]').forEach(script => {
+    try {
+      const data = JSON.parse(script.textContent);
+      if (data['@type'] === 'Product') {
+        script.remove();
+      }
+    } catch (e) {
+      // not JSON-LD we care about, leave it alone
+    }
+  });
+}
+
+// Explicit not-found state — distinct from the "Loading…" placeholder so nothing
+// (including Navigator) mistakes an unresolved product for one that's still loading
+function renderProductNotFound(requestedId) {
+  const title = 'Product Not Found | Factory Direct Flooring';
+  document.title = title;
+  setMetaContent('meta[name="title"]', 'Product Not Found');
+  setMetaContent('meta[property="og:title"]', 'Product Not Found');
+  setMetaContent('meta[name="description"]', `No product matches "${requestedId}".`);
+  setMetaContent('meta[property="og:description"]', `No product matches "${requestedId}".`);
+  window.currentProduct = null;
+  window.dispatchEvent(new CustomEvent('fdf:product-not-found', { detail: { requestedId } }));
+}
+
 // Render product into template
 function renderProductPage(product) {
   if (!product) {
     document.body.innerHTML = '<h1>Product not found</h1>';
     return;
   }
+
+  const fullTitle = product.name + ' | Factory Direct Flooring';
+  const description = `${product.name} — ${product.category} flooring from Factory Direct Flooring. £${(product.price / 100).toFixed(2)} per m².`;
+  const pageUrl = window.location.origin + window.location.pathname + window.location.search;
 
   // Update price
   const priceElements = document.querySelectorAll('[data-price-display], .price-box span.price');
@@ -168,11 +230,46 @@ function renderProductPage(product) {
   });
 
   // Update product name in title and heading
-  document.title = product.name + ' | Factory Direct Flooring';
+  document.title = fullTitle;
   const titleElements = document.querySelectorAll('h1[class*="product"], .product-title');
   titleElements.forEach(el => {
     el.textContent = product.name;
   });
+
+  // Update every metadata surface a page-context reader might use, not just document.title
+  setMetaContent('meta[name="title"]', fullTitle);
+  setMetaContent('meta[name="description"]', description);
+  setMetaContent('meta[property="og:title"]', fullTitle);
+  setMetaContent('meta[property="og:description"]', description);
+  setMetaContent('meta[property="og:url"]', pageUrl);
+  if (product.image) setMetaContent('meta[property="og:image"]', product.image);
+  setMetaContent('meta[property="product:price:amount"]', (product.price / 100).toFixed(2));
+
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) canonical.setAttribute('href', window.location.pathname + window.location.search);
+
+  // Re-add a JSON-LD Product block for THIS product (the captured one was removed
+  // by neutralizeStaleProductMetadata() before this ran)
+  removeProductJsonLd();
+  const jsonLd = document.createElement('script');
+  jsonLd.type = 'application/ld+json';
+  jsonLd.textContent = JSON.stringify({
+    '@context': 'https://schema.org/',
+    '@type': 'Product',
+    name: product.name,
+    sku: product.id,
+    image: product.image,
+    description: description,
+    category: product.category,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'GBP',
+      price: (product.price / 100).toFixed(2),
+      url: pageUrl,
+      availability: 'https://schema.org/InStock',
+    },
+  });
+  document.head.appendChild(jsonLd);
 
   // Update images
   const images = document.querySelectorAll('img[class*="product-image"], img[loading="lazy"]');
@@ -211,6 +308,11 @@ function renderProductPage(product) {
       };
     }
   }
+
+  // Authoritative signal for anything (e.g. Navigator's bridge) that wants to
+  // react to product resolution instead of racing document.title/meta reads
+  window.currentProduct = product;
+  window.dispatchEvent(new CustomEvent('fdf:product-ready', { detail: product }));
 }
 
 // Render category page with products
@@ -276,7 +378,9 @@ window.ProductsDB = {
   getAllScenarios,
   getDeliveryInfo,
   getDeliveryFAQ,
+  neutralizeStaleProductMetadata,
   renderProductPage,
+  renderProductNotFound,
   renderCategoryPage,
   updateCartUI
 };

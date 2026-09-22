@@ -9338,15 +9338,26 @@ Includes an integrated 2mm underlay, suitable for wooden sub-floors. Concrete Su
 
     <script src="/js/cart.js"></script>
     <script src="/js/products-data.js"></script>
+    <script>
+      // This page template was captured from ONE real product on the live site, so its
+      // <title>, meta tags, canonical link, and JSON-LD Product schema are hardcoded to
+      // that product. Wipe them to a neutral placeholder synchronously, right now, before
+      // any deferred third-party script (e.g. Navigator, below) gets a chance to read the
+      // stale baked-in identity. Do not move this below the wa-agent.js tag.
+      ProductsDB.neutralizeStaleProductMetadata();
+    </script>
     <script defer src="https://cdn.websiteavatar.co.uk/wa-agent.js?id=acct_factory-direct-flooring"></script>
     <script>
-      // Route products and categories on page load
-      document.addEventListener('DOMContentLoaded', async () => {
+      // Resolve and render the real product immediately — do NOT gate this behind
+      // DOMContentLoaded. This script runs at the end of the body, so the DOM it touches
+      // is already parsed; waiting for DOMContentLoaded only adds a delay after deferred
+      // scripts (like wa-agent.js above) have already executed, widening the window in
+      // which they could observe stale/placeholder data.
+      (async () => {
         await ProductsDB.load();
 
-        // If this is a product page with an ID or slug, render it
         const params = new URLSearchParams(window.location.search);
-        let productId = params.get('id') || params.get('slug');
+        const productId = params.get('id') || params.get('slug');
 
         if (productId) {
           const product = ProductsDB.getProduct(productId);
@@ -9354,9 +9365,10 @@ Includes an integrated 2mm underlay, suitable for wooden sub-floors. Concrete Su
             ProductsDB.renderProductPage(product);
           } else {
             console.error('Product not found:', productId);
+            ProductsDB.renderProductNotFound(productId);
           }
         }
-      });
+      })();
     </script>
 
 </body></html>
