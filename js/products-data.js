@@ -74,12 +74,24 @@ function getProduct(idOrSlug) {
   let product = window.productsDB.find(p => p.id === idOrSlug);
   if (product) return product;
 
-  // Try slug (from URL field)
-  product = window.productsDB.find(p => {
-    const slugFromUrl = p.url.split('/').pop();
-    return slugFromUrl === idOrSlug;
-  });
+  // Try slug (from URL field) — url is now this site's own
+  // /product.html?slug=<slug> page (see the sourceUrl/url split, added when
+  // navigation started using url directly), so the slug lives in the
+  // query string, not the last path segment. Falls back to plain
+  // path-segment parsing for any URL shape without a slug param.
+  product = window.productsDB.find(p => extractSlugFromUrl(p.url) === idOrSlug);
   return product || null;
+}
+
+function extractSlugFromUrl(url) {
+  try {
+    const u = new URL(url, window.location.origin);
+    const qsSlug = u.searchParams.get('slug');
+    if (qsSlug) return qsSlug;
+    return u.pathname.split('/').filter(Boolean).pop() || '';
+  } catch (_) {
+    return String(url).split('/').pop();
+  }
 }
 
 // Get products by category
