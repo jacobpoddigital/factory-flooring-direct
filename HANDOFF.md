@@ -82,21 +82,23 @@ window.addEventListener('cart-updated', (e) => { /* e.detail = cart state */ })
 | # | Friction point | API to use | Status |
 |---|---|---|---|
 | 1 | Homepage confusion (which flooring type) | `getProductsByCategory()` | Ready |
-| 2 | Natural language nav ("light oak kitchen floor") | Product names + `getProductSpecs()` | Ready, sparse data |
+| 2 | Natural language nav ("light oak kitchen floor") | Product names + `getProductSpecs()` | Ready |
 | 3 | Category overload | `getProductsByCategory()` + suitability flags | Ready |
-| 4 | Product comparison | `getProductSpecs()` | Ready for 3 products, needs backfill |
-| 5 | Measurements/wastage | `productSpecs.plank_width` / `thickness` | Ready, sparse data |
-| 6 | Suitability Q&A (kitchen/pets/underfloor/traffic) | `productSpecs.suitability{...}` | Ready, sparse data |
+| 4 | Product comparison | `getProductSpecs()` | Ready — all 67 products |
+| 5 | Measurements/wastage | `productSpecs.plank_width` / `thickness` | Ready |
+| 6 | Suitability Q&A (kitchen/pets/underfloor/traffic) | `productSpecs.suitability{...}` | Ready |
 | 7 | Accessories recommendation | `getAccessoriesForCategory()` / `getCrossSellAccessories()` | Ready |
 | 8 | Samples/visualization | Real product images (hotlinked CDN) | Ready — no sample-ordering backend |
-| 9 | Delivery/stock questions | — | **Not implemented** — no data source exists |
+| 9 | Delivery/stock questions | `getDeliveryInfo()` / `getDeliveryFAQ()` | Ready — mock data, see gap #2 below |
 | 10 | Basket reassurance | `window.cart.get()` | Ready |
 | 11 | Cross-sell/upsell | `getCrossSellAccessories()` + `getScenarioBundle()` | Ready |
 
+**Navigator embed**: `<script defer src="https://cdn.websiteavatar.co.uk/wa-agent.js?id=acct_factory-direct-flooring">` is now live on all 11 pages (homepage, product template, cart, 6 category pages, about, advice), placed immediately after `products-data.js` on each so `window.ProductsDB`/`window.cart` are guaranteed available when the bridge initializes.
+
 ## 6. Known gaps — be aware of these before the demo
 
-1. **`product-specs.json` only covers 3 of 67 products** (ids `876112`, `876213`, `918260`). Any product outside those three will return `null` from `getProductSpecs()`. If Navigator's demo script queries a random/arbitrary product for suitability info, it'll come back empty. **Either**: script the demo around those 3 products, or extend the specs file before the client sees it.
-2. **Friction point #9 (delivery/stock)** has no backing data at all — there's no inventory or shipping model in this mock. If the demo needs to answer "is this in stock / when will it arrive", that needs to be faked with a script-side canned answer, not a real API call.
+1. ~~`product-specs.json` only covers 3 of 67 products~~ — **Resolved.** All 67 products now have specs, generated per-category (Solid Wood, Engineered Wood, Laminate, Vinyl, Herringbone) with suitability/wear/installation values parsed from each product's name and sensible category defaults. Worth a spot-check against a few real product pages before the client sees it, since the values are inferred, not scraped from the live site's spec tables.
+2. **`data/delivery.json` is mock data, not a real backend** — friction point #9 now has something to query (`getDeliveryInfo()`, `getDeliveryFAQ()`), with category-level overrides (e.g. solid wood ships slower via pallet, herringbone notes "some designs made to order"). This is invented to be plausible, not pulled from a real stock/courier system — fine for demo purposes, just don't present it as live inventory if asked directly.
 3. **Accessories (14 items) are illustrative, not scraped** — they're plausible products written to match the real site's categories, but they're not pulled from the live site the way the 67 core products are. Fine for demo purposes, just don't present them as "real" if asked directly.
 4. **Checkout is not functional** — cart add/remove/update all work and persist via localStorage, but there's no payment flow. The cart page has a checkout CTA that is a non-functional stub.
 5. **A handful of legacy Next.js scaffolding files remain in the repo root** (`app/`, `components/`, `lib/`, `next.config.js` was removed but `pages-captured/`, `category.html`, `progress.html` are stray leftovers from earlier iterations). They're harmless (not linked from any live page) but worth a cleanup pass before this repo is handed to another team long-term.
@@ -122,10 +124,12 @@ Two non-obvious things that cost real time getting this live, documented so they
 
 ## 8. Suggested next steps before the client sees this
 
-1. Backfill `product-specs.json` for at least the products likely to come up in the demo script (ideally all 67, but prioritize whatever Navigator's scripted flows will query).
-2. Decide how friction point #9 (delivery/stock) gets handled — either add a lightweight fake data source or make sure Navigator's script doesn't lean on live data for that beat.
-3. Drop the Navigator embed script into the pages (currently there's no chatbot/avatar script tag anywhere) and confirm it can see `window.ProductsDB` and `window.cart` on page load — both are attached in `<head>`/pre-body scripts on every page, so timing should be fine, but worth a smoke test once the actual Navigator script exists.
-4. Optional cleanup: remove the stray Next.js/debug files noted in §6 if this repo will live long-term rather than just for the demo.
+1. ~~Backfill `product-specs.json`~~ — done, all 67 products covered.
+2. ~~Decide how friction point #9 (delivery/stock) gets handled~~ — done, `data/delivery.json` + `getDeliveryInfo()`/`getDeliveryFAQ()`.
+3. ~~Drop the Navigator embed script into the pages~~ — done, live on all 11 pages after `products-data.js`.
+4. **Smoke-test the live embed against `window.ProductsDB`/`window.cart` once website-avatar's bridge code is actually running** — the script tag is in place and the globals are confirmed available by the time it loads, but nobody has exercised the real bridge end-to-end yet.
+5. Spot-check a handful of the auto-generated `product-specs.json` entries against the real site's spec tables — the values are inferred from product names + category defaults, not scraped, so accuracy should be verified before the client relies on them in a live Q&A.
+6. Optional cleanup: remove the stray Next.js/debug files noted in §6 if this repo will live long-term rather than just for the demo.
 
 ---
 
