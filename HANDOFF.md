@@ -1,0 +1,135 @@
+# Handoff: Factory Direct Flooring Mock → Navigator Integration
+
+**Date**: 2026-09-22
+**Prepared for**: Navigator (website-avatar) integration
+**Status**: Live and demo-ready
+
+---
+
+## 1. What this is
+
+A pixel-close, fully functional static clone of factory-direct-flooring.co.uk, built so Navigator can be dropped in and demoed against a real-feeling storefront without needing access to the real Magento backend. Every page is captured from the live site (not invented), with a lightweight JS data/cart layer bolted on top so Navigator has something real to query and act on.
+
+## 2. Where it lives
+
+| What | Where |
+|---|---|
+| **Live demo URL** | https://factory-flooring-direct-puce.vercel.app |
+| **GitHub repo** | https://github.com/jacobpoddigital/factory-flooring-direct |
+| **Vercel project** | `ad-velocity-97abc273/factory-flooring-direct` |
+| **Local dev** | `node server.js` → http://localhost:8080 |
+
+**Auto-deploy is live**: any push to `main` on GitHub triggers a new Vercel production deployment automatically. No manual deploy step needed going forward — just commit and push.
+
+## 3. Architecture
+
+Static HTML/CSS/vanilla JS. No framework, no build step, no server-side rendering in production (Vercel serves it as pure static files — `server.js` is only for local dev and isn't used in the deployed version).
+
+```
+index.html                  → homepage (captured from live site)
+product.html                → single template, renders any product via ?slug=xxx
+cart.html                   → cart page (captured, wired to localStorage)
+categories/*.html           → 6 category pages (captured from live site):
+                               solid-wood, engineered-wood, laminate,
+                               vinyl, lvt, herringbone
+about.html, advice.html     → captured static pages
+
+data/
+  products.json              → 67 real products (id, name, url/slug, price, image, category)
+  product-specs.json         → technical specs + suitability flags (only 3 products fully populated — see gaps below)
+  accessories.json           → 14 accessory products (underlay, trims, adhesives, tools, maintenance)
+  product-compatibility.json → category→accessory compatibility matrix + 5 scenario bundles + cross-sell rules
+
+js/
+  cart.js                    → window.cart API, localStorage-backed
+  products-data.js           → window.ProductsDB API, loads all 4 data files and exposes query methods
+```
+
+Key implementation detail worth knowing: **product pages are identified by `?slug=` query param, read client-side** — there is no server-side routing. This matters because it's why the site deploys cleanly as 100% static (Vercel serves `/product.html` regardless of query string; the JS in the page reads `location.search` itself).
+
+## 4. The Navigator-facing API
+
+This is what Navigator should call. It's already loaded on every page via `<script src="/js/cart.js">` and `<script src="/js/products-data.js">`.
+
+```javascript
+// Initialize (idempotent, safe to call repeatedly)
+await window.ProductsDB.load()
+
+// Product queries
+window.ProductsDB.getProduct(idOrSlug)              // works with either DB id or URL slug
+window.ProductsDB.getProductsByCategory(category)   // 'Solid Wood' | 'Engineered Wood' | 'Laminate' | 'Vinyl' | 'LVT' | 'Herringbone'
+window.ProductsDB.getProductSpecs(productId)        // suitability flags, wear rating, warranty, etc. (sparse — see gaps)
+
+// Accessories / cross-sell
+window.ProductsDB.getAccessoriesForCategory(category)
+window.ProductsDB.getAccessory(accessoryId)
+window.ProductsDB.getCrossSellAccessories(productId)
+window.ProductsDB.getScenarioBundle(scenarioKey)    // e.g. 'kitchen_heavy_use', 'underfloor_heating'
+window.ProductsDB.getAllScenarios()
+
+// Cart
+window.cart.add({id, name, price, image, quantity})
+window.cart.get()                                   // {items[], total, itemCount}
+window.cart.updateQuantity(id, qty)
+window.cart.remove(id)
+
+// Events
+window.addEventListener('cart-updated', (e) => { /* e.detail = cart state */ })
+```
+
+## 5. How this maps to the 11 friction points Mike scoped with the client
+
+| # | Friction point | API to use | Status |
+|---|---|---|---|
+| 1 | Homepage confusion (which flooring type) | `getProductsByCategory()` | Ready |
+| 2 | Natural language nav ("light oak kitchen floor") | Product names + `getProductSpecs()` | Ready, sparse data |
+| 3 | Category overload | `getProductsByCategory()` + suitability flags | Ready |
+| 4 | Product comparison | `getProductSpecs()` | Ready for 3 products, needs backfill |
+| 5 | Measurements/wastage | `productSpecs.plank_width` / `thickness` | Ready, sparse data |
+| 6 | Suitability Q&A (kitchen/pets/underfloor/traffic) | `productSpecs.suitability{...}` | Ready, sparse data |
+| 7 | Accessories recommendation | `getAccessoriesForCategory()` / `getCrossSellAccessories()` | Ready |
+| 8 | Samples/visualization | Real product images (hotlinked CDN) | Ready — no sample-ordering backend |
+| 9 | Delivery/stock questions | — | **Not implemented** — no data source exists |
+| 10 | Basket reassurance | `window.cart.get()` | Ready |
+| 11 | Cross-sell/upsell | `getCrossSellAccessories()` + `getScenarioBundle()` | Ready |
+
+## 6. Known gaps — be aware of these before the demo
+
+1. **`product-specs.json` only covers 3 of 67 products** (ids `876112`, `876213`, `918260`). Any product outside those three will return `null` from `getProductSpecs()`. If Navigator's demo script queries a random/arbitrary product for suitability info, it'll come back empty. **Either**: script the demo around those 3 products, or extend the specs file before the client sees it.
+2. **Friction point #9 (delivery/stock)** has no backing data at all — there's no inventory or shipping model in this mock. If the demo needs to answer "is this in stock / when will it arrive", that needs to be faked with a script-side canned answer, not a real API call.
+3. **Accessories (14 items) are illustrative, not scraped** — they're plausible products written to match the real site's categories, but they're not pulled from the live site the way the 67 core products are. Fine for demo purposes, just don't present them as "real" if asked directly.
+4. **Checkout is not functional** — cart add/remove/update all work and persist via localStorage, but there's no payment flow. The cart page has a checkout CTA that is a non-functional stub.
+5. **A handful of legacy Next.js scaffolding files remain in the repo root** (`app/`, `components/`, `lib/`, `next.config.js` was removed but `pages-captured/`, `category.html`, `progress.html` are stray leftovers from earlier iterations). They're harmless (not linked from any live page) but worth a cleanup pass before this repo is handed to another team long-term.
+6. **A pile of one-off debug/test scripts live in the repo root** (`debug-*.js`, `test-*.js`, `check-errors.js`, `find-404.js`, `quick-test-products.js`, `verify-product-page.js`) — these were used to diagnose the Vercel deployment issue during this session (see §7) and aren't part of the site itself. Safe to delete or move to a `/scripts` folder.
+
+## 7. Deployment notes (for whoever maintains this next)
+
+Two non-obvious things that cost real time getting this live, documented so they don't get re-broken:
+
+- **Don't add a server function for query-string handling.** It's tempting to think `/product.html?slug=xxx` needs server-side routing, but it doesn't — the browser requests `/product.html` and the page's own JS reads `location.search`. An Express serverless function was built and then removed for exactly this reason; it just added failure surface (Express 5's wildcard route syntax changed to `/*splat`, runtime version strings need `.x` suffixes, etc.) for zero benefit.
+- **`vercel.json` needs explicit `"outputDirectory": "."` when `"framework": null`.** Without it, Vercel's static builder produces *no* deployable output at all (silently — you only see it if you run `vercel build` locally and read the warning). Current working config:
+  ```json
+  {
+    "framework": null,
+    "buildCommand": null,
+    "outputDirectory": ".",
+    "cleanUrls": false,
+    "trailingSlash": false
+  }
+  ```
+- `.vercelignore` excludes `node_modules`, `pages-captured`, and `reference` from the deployment to keep it lean.
+- `package.json` has `express`, `cheerio`, and `playwright` in `devDependencies` — none of them are used at runtime by the deployed site (only by local capture/debug scripts), so they don't bloat the production deployment.
+
+## 8. Suggested next steps before the client sees this
+
+1. Backfill `product-specs.json` for at least the products likely to come up in the demo script (ideally all 67, but prioritize whatever Navigator's scripted flows will query).
+2. Decide how friction point #9 (delivery/stock) gets handled — either add a lightweight fake data source or make sure Navigator's script doesn't lean on live data for that beat.
+3. Drop the Navigator embed script into the pages (currently there's no chatbot/avatar script tag anywhere) and confirm it can see `window.ProductsDB` and `window.cart` on page load — both are attached in `<head>`/pre-body scripts on every page, so timing should be fine, but worth a smoke test once the actual Navigator script exists.
+4. Optional cleanup: remove the stray Next.js/debug files noted in §6 if this repo will live long-term rather than just for the demo.
+
+---
+
+**Quick links**
+- Live site: https://factory-flooring-direct-puce.vercel.app
+- Repo: https://github.com/jacobpoddigital/factory-flooring-direct
+- Local dev: `node server.js` (port 8080)
