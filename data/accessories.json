@@ -1,0 +1,219 @@
+[
+  {
+    "id": "acc-001",
+    "name": "Premium Foam Underlay",
+    "category": "Underlay",
+    "price": 399,
+    "description": "3mm premium foam underlay with moisture barrier",
+    "compatible_with": ["Laminate", "Engineered Wood"],
+    "specifications": {
+      "thickness": "3mm",
+      "material": "Polyethylene foam",
+      "moisture_barrier": true,
+      "acoustic_rating": "Good",
+      "underfloor_heating": false
+    },
+    "quantity_unit": "m²",
+    "installation_notes": "Lay before flooring installation, overlap seams by 5cm"
+  },
+  {
+    "id": "acc-002",
+    "name": "Cork Underlay with Moisture Barrier",
+    "category": "Underlay",
+    "price": 699,
+    "description": "Natural cork underlay, premium acoustic and moisture protection",
+    "compatible_with": ["Solid Wood", "Engineered Wood"],
+    "specifications": {
+      "thickness": "4mm",
+      "material": "Natural cork",
+      "moisture_barrier": true,
+      "acoustic_rating": "Excellent",
+      "underfloor_heating": true
+    },
+    "quantity_unit": "m²",
+    "installation_notes": "Premium option for solid wood, supports underfloor heating"
+  },
+  {
+    "id": "acc-003",
+    "name": "Vinyl Underlay - Moisture Guard",
+    "category": "Underlay",
+    "price": 299,
+    "description": "Heavy-duty vinyl underlay for vinyl and LVT flooring",
+    "compatible_with": ["LVT", "Vinyl"],
+    "specifications": {
+      "thickness": "2mm",
+      "material": "Vinyl",
+      "moisture_barrier": true,
+      "acoustic_rating": "Good",
+      "underfloor_heating": false
+    },
+    "quantity_unit": "m²",
+    "installation_notes": "Specifically designed for luxury vinyl"
+  },
+  {
+    "id": "acc-004",
+    "name": "Skirting Board - Oak Effect",
+    "category": "Trims & Beading",
+    "price": 1099,
+    "description": "Pre-finished oak effect skirting board (2.4m lengths)",
+    "compatible_with": ["Laminate", "Engineered Wood"],
+    "specifications": {
+      "height": "80mm",
+      "thickness": "14mm",
+      "length": "2.4m",
+      "finish": "Oak effect"
+    },
+    "quantity_unit": "length (metres)",
+    "installation_notes": "Covers expansion gap between flooring and wall"
+  },
+  {
+    "id": "acc-005",
+    "name": "Door Bar Transition - Adjustable",
+    "category": "Trims & Beading",
+    "price": 799,
+    "description": "Adjustable door bar for transitioning between flooring levels",
+    "compatible_with": ["All"],
+    "specifications": {
+      "height_adjustment": "Up to 15mm",
+      "material": "Aluminium",
+      "finish": "Brushed silver",
+      "length": "900mm"
+    },
+    "quantity_unit": "piece",
+    "installation_notes": "Adjustable for different floor heights"
+  },
+  {
+    "id": "acc-006",
+    "name": "Flexible Profile Beading",
+    "category": "Trims & Beading",
+    "price": 599,
+    "description": "Flexible beading for curved transitions (2.4m)",
+    "compatible_with": ["Laminate", "LVT"],
+    "specifications": {
+      "flexibility": "Up to 25mm radius curves",
+      "height": "40mm",
+      "material": "Plastic",
+      "length": "2.4m"
+    },
+    "quantity_unit": "length (metres)",
+    "installation_notes": "Perfect for curved walls or feature areas"
+  },
+  {
+    "id": "acc-007",
+    "name": "Wood Flooring Adhesive - Premium",
+    "category": "Adhesives & Sealants",
+    "price": 1499,
+    "description": "Professional-grade wood flooring adhesive (15L)",
+    "compatible_with": ["Solid Wood", "Engineered Wood"],
+    "specifications": {
+      "coverage": "50-60 m² per 15L",
+      "dry_time": "24 hours",
+      "type": "Polyurethane"
+    },
+    "quantity_unit": "15L can",
+    "installation_notes": "For glued or semi-glued installation"
+  },
+  {
+    "id": "acc-008",
+    "name": "Laminate Flooring Adhesive",
+    "category": "Adhesives & Sealants",
+    "price": 799,
+    "description": "Specialist laminate edge adhesive (750ml)",
+    "compatible_with": ["Laminate"],
+    "specifications": {
+      "coverage": "Up to 100m edges",
+      "dry_time": "4 hours",
+      "type": "Water-based PVA"
+    },
+    "quantity_unit": "750ml bottle",
+    "installation_notes": "For sealing laminate edges in wet areas"
+  },
+  {
+    "id": "acc-009",
+    "name": "Professional Laminate Cutter",
+    "category": "Tools",
+    "price": 4999,
+    "description": "Manual laminate cutting machine for precise cuts",
+    "compatible_with": ["Laminate"],
+    "specifications": {
+      "max_width": "330mm",
+      "blade": "Pre-sharpened tungsten",
+      "accuracy": "+/- 2mm"
+    },
+    "quantity_unit": "piece",
+    "installation_notes": "Essential for professional installation"
+  },
+  {
+    "id": "acc-010",
+    "name": "Saw Horse & Workbench",
+    "category": "Tools",
+    "price": 2999,
+    "description": "Adjustable saw horse for cutting flooring to size",
+    "compatible_with": ["All"],
+    "specifications": {
+      "height": "Adjustable 0.7-1.0m",
+      "material": "Steel",
+      "max_load": "100kg"
+    },
+    "quantity_unit": "piece",
+    "installation_notes": "Supports flooring during cutting"
+  },
+  {
+    "id": "acc-011",
+    "name": "Spacers - Plastic Wedges (100 pack)",
+    "category": "Tools",
+    "price": 499,
+    "description": "Plastic expansion spacers for maintaining gap during installation",
+    "compatible_with": ["All"],
+    "specifications": {
+      "size": "10mm",
+      "quantity": "100 pieces",
+      "material": "Plastic"
+    },
+    "quantity_unit": "100-pack",
+    "installation_notes": "Maintains proper expansion gap against walls"
+  },
+  {
+    "id": "acc-012",
+    "name": "Floor Cleaning & Protection Kit",
+    "category": "Maintenance",
+    "price": 3999,
+    "description": "Complete maintenance kit with cleaner, protectant, and microfiber pads",
+    "compatible_with": ["All"],
+    "specifications": {
+      "includes": "Cleaner, protectant, 2x microfiber pads",
+      "suitable_for": "All flooring types"
+    },
+    "quantity_unit": "kit",
+    "installation_notes": "Use after installation and ongoing maintenance"
+  },
+  {
+    "id": "acc-013",
+    "name": "Wood Floor Polish & Sealer",
+    "category": "Maintenance",
+    "price": 2499,
+    "description": "Professional polish and sealer for wood flooring (1L)",
+    "compatible_with": ["Solid Wood", "Engineered Wood"],
+    "specifications": {
+      "coverage": "40-50 m² per litre",
+      "finish": "High-gloss or satin",
+      "reapply": "Every 6-12 months"
+    },
+    "quantity_unit": "1L bottle",
+    "installation_notes": "Maintains shine and protection on wood floors"
+  },
+  {
+    "id": "acc-014",
+    "name": "Laminate Repair Kit - Touch-Up",
+    "category": "Maintenance",
+    "price": 1299,
+    "description": "Repair system for laminate scratches and chips",
+    "compatible_with": ["Laminate"],
+    "specifications": {
+      "includes": "Filler, color selector, touch-up pen",
+      "colors": "15 standard shades"
+    },
+    "quantity_unit": "kit",
+    "installation_notes": "Quick fixes for minor damage"
+  }
+]

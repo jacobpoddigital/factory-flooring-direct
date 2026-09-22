@@ -1,0 +1,71 @@
+{
+  "876112": {
+    "thickness": "18mm",
+    "wear_rating": "AC5",
+    "warranty": "25 years",
+    "look": "Natural brushed oak",
+    "finish": "UV oiled",
+    "suitability": {
+      "kitchen": true,
+      "bathroom": false,
+      "living_room": true,
+      "bedroom": true,
+      "pets": true,
+      "underfloor_heating": true,
+      "commercial": false,
+      "heavy_traffic": true
+    },
+    "installation": "Floating or glued",
+    "underlay_needed": true,
+    "maintenance": "Regular vacuuming, avoid water",
+    "plank_width": "120mm",
+    "color": "Light oak",
+    "surface_treatment": "Brushed and UV oiled"
+  },
+  "876213": {
+    "thickness": "18mm",
+    "wear_rating": "AC5",
+    "warranty": "25 years",
+    "look": "Double smoked oak",
+    "finish": "Matt lacquer",
+    "suitability": {
+      "kitchen": true,
+      "bathroom": false,
+      "living_room": true,
+      "bedroom": true,
+      "pets": true,
+      "underfloor_heating": true,
+      "commercial": false,
+      "heavy_traffic": true
+    },
+    "installation": "Floating or glued",
+    "underlay_needed": true,
+    "maintenance": "Regular vacuuming, wipe spills immediately",
+    "plank_width": "120mm",
+    "color": "Dark smoked oak",
+    "surface_treatment": "Brushed and lacquered"
+  },
+  "918260": {
+    "thickness": "14mm",
+    "wear_rating": "AC5",
+    "warranty": "15 years",
+    "look": "Crystal oak laminate",
+    "finish": "Built-in underlay",
+    "suitability": {
+      "kitchen": true,
+      "bathroom": false,
+      "living_room": true,
+      "bedroom": true,
+      "pets": true,
+      "underfloor_heating": false,
+      "commercial": false,
+      "heavy_traffic": true
+    },
+    "installation": "Click system, floating",
+    "underlay_needed": false,
+    "maintenance": "Sweep and damp mop only",
+    "plank_width": "Medium planks",
+    "color": "Light oak",
+    "surface_treatment": "Realistic wood grain"
+  }
+}

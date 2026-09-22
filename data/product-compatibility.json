@@ -1,0 +1,93 @@
+{
+  "compatibility_matrix": {
+    "Solid Wood": {
+      "underlay": ["acc-002"],
+      "trims": ["acc-004", "acc-005"],
+      "adhesives": ["acc-007"],
+      "tools": ["acc-010", "acc-011"],
+      "maintenance": ["acc-012", "acc-013"],
+      "cross_sell": ["acc-002"]
+    },
+    "Engineered Wood": {
+      "underlay": ["acc-001", "acc-002"],
+      "trims": ["acc-004", "acc-005", "acc-006"],
+      "adhesives": ["acc-007", "acc-008"],
+      "tools": ["acc-010", "acc-011"],
+      "maintenance": ["acc-012", "acc-013"],
+      "cross_sell": ["acc-001", "acc-002"]
+    },
+    "Laminate": {
+      "underlay": ["acc-001"],
+      "trims": ["acc-004", "acc-005", "acc-006"],
+      "adhesives": ["acc-008"],
+      "tools": ["acc-009", "acc-010", "acc-011"],
+      "maintenance": ["acc-012", "acc-014"],
+      "cross_sell": ["acc-001"]
+    },
+    "Vinyl": {
+      "underlay": ["acc-003"],
+      "trims": ["acc-005", "acc-006"],
+      "adhesives": [],
+      "tools": ["acc-010", "acc-011"],
+      "maintenance": ["acc-012"],
+      "cross_sell": ["acc-003"]
+    },
+    "LVT": {
+      "underlay": ["acc-003"],
+      "trims": ["acc-005", "acc-006"],
+      "adhesives": [],
+      "tools": ["acc-010", "acc-011"],
+      "maintenance": ["acc-012"],
+      "cross_sell": ["acc-003"]
+    }
+  },
+  "scenario_bundles": {
+    "kitchen_heavy_use": {
+      "description": "Complete kitchen flooring solution with protection",
+      "accessories": ["acc-001", "acc-004", "acc-007", "acc-010", "acc-011", "acc-012", "acc-013"],
+      "reason": "Kitchen needs underlayment for moisture protection, trims for finish, adhesive, tools, and ongoing maintenance"
+    },
+    "underfloor_heating": {
+      "description": "Specialized solution for underfloor heating systems",
+      "accessories": ["acc-002"],
+      "reason": "Cork underlay (acc-002) is the only option that supports underfloor heating with moisture barrier"
+    },
+    "high_traffic": {
+      "description": "Maximum durability solution for busy areas",
+      "accessories": ["acc-002", "acc-012", "acc-013"],
+      "reason": "Premium underlayment and regular maintenance products ensure long-term durability"
+    },
+    "diy_installation": {
+      "description": "Tools and guides for do-it-yourself installation",
+      "accessories": ["acc-009", "acc-010", "acc-011", "acc-012"],
+      "reason": "Essential tools for precise cutting, support, and spacing during installation"
+    },
+    "professional_install": {
+      "description": "Premium tools and materials for professional installation",
+      "accessories": ["acc-002", "acc-004", "acc-007", "acc-009", "acc-010", "acc-011", "acc-012", "acc-013"],
+      "reason": "Full suite of professional-grade materials and tools"
+    }
+  },
+  "cross_sell_rules": {
+    "acc-001": {
+      "name": "Premium Foam Underlay",
+      "upsell_to": ["acc-008", "acc-012"],
+      "reason": "If customer chooses foam underlay, they may need laminate adhesive and cleaning kit"
+    },
+    "acc-002": {
+      "name": "Cork Underlay with Moisture Barrier",
+      "upsell_to": ["acc-007", "acc-013"],
+      "reason": "Premium underlayment pairs well with professional adhesive and maintenance products"
+    },
+    "acc-004": {
+      "name": "Skirting Board",
+      "upsell_to": ["acc-005", "acc-012"],
+      "reason": "Skirting boards pair with transition bars and finishing/cleaning products"
+    },
+    "acc-007": {
+      "name": "Wood Flooring Adhesive",
+      "upsell_to": ["acc-010", "acc-011"],
+      "reason": "Adhesive requires tools and spacers for proper installation"
+    }
+  }
+}
