@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { watch } = require('fs');
 
-const PORT = 8080;
+const PORT = process.env.PORT || 8080;
 const ROOT = __dirname;
 
 // Simple static file server with live reload
