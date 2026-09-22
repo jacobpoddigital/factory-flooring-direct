@@ -8,6 +8,7 @@ window.productCategories = {};
 window.productSpecs = {};
 window.accessories = [];
 window.compatibility = {};
+window.deliveryInfo = {};
 
 // Load all data files
 async function loadProductsData() {
@@ -40,6 +41,14 @@ async function loadProductsData() {
       window.compatibility = await compatResponse.json();
     } catch (e) {
       console.warn('Compatibility matrix not found');
+    }
+
+    // Load delivery/stock info (mock data, not a real backend)
+    try {
+      const deliveryResponse = await fetch('/data/delivery.json');
+      window.deliveryInfo = await deliveryResponse.json();
+    } catch (e) {
+      console.warn('Delivery info not found');
     }
 
     // Build category map for quick lookup
@@ -124,6 +133,25 @@ function getAllScenarios() {
     key,
     ...bundle
   }));
+}
+
+// Get delivery/stock info for a product (mock data, not a real backend)
+function getDeliveryInfo(productIdOrSlug) {
+  const info = window.deliveryInfo || {};
+  const base = info.default || {};
+  const product = productIdOrSlug ? getProduct(productIdOrSlug) : null;
+  const categoryOverride = product ? (info.by_category || {})[product.category] : null;
+
+  return {
+    ...base,
+    ...(categoryOverride || {}),
+    category: product ? product.category : null,
+  };
+}
+
+// Get delivery FAQ entries
+function getDeliveryFAQ() {
+  return (window.deliveryInfo && window.deliveryInfo.faq) || [];
 }
 
 // Render product into template
@@ -246,6 +274,8 @@ window.ProductsDB = {
   getCrossSellAccessories,
   getScenarioBundle,
   getAllScenarios,
+  getDeliveryInfo,
+  getDeliveryFAQ,
   renderProductPage,
   renderCategoryPage,
   updateCartUI

@@ -1,0 +1,68 @@
+{
+  "_note": "Mock delivery/stock data for demo purposes only — not connected to a real warehouse or courier system. Keyed by category with a generic fallback.",
+
+  "default": {
+    "in_stock": true,
+    "stock_level": "In stock",
+    "dispatch": "Same working day if ordered before 2pm",
+    "delivery_estimate": "2-4 working days",
+    "delivery_cost": {
+      "standard": 495,
+      "free_threshold": 30000,
+      "free_threshold_note": "Free delivery on orders over £300"
+    },
+    "courier": "Palletways / DPD (pallet or parcel depending on order size)",
+    "sample_delivery": {
+      "cost": 0,
+      "estimate": "2-3 working days",
+      "note": "Free samples, up to 5 per order"
+    }
+  },
+
+  "by_category": {
+    "Solid Wood": {
+      "stock_level": "In stock",
+      "delivery_estimate": "3-5 working days",
+      "note": "Heavier pallet delivery, kerbside only — customer must arrange access for pallet trucks"
+    },
+    "Engineered Wood": {
+      "stock_level": "In stock",
+      "delivery_estimate": "2-4 working days",
+      "note": "Pallet delivery for large orders, parcel courier for small orders"
+    },
+    "Laminate": {
+      "stock_level": "In stock",
+      "delivery_estimate": "1-3 working days",
+      "note": "Lightweight, usually parcel courier"
+    },
+    "Vinyl": {
+      "stock_level": "In stock",
+      "delivery_estimate": "1-3 working days",
+      "note": "Rolls delivered via dedicated courier for orders over 20m²"
+    },
+    "Herringbone": {
+      "stock_level": "In stock — some designs made to order",
+      "delivery_estimate": "3-7 working days",
+      "note": "Certain herringbone patterns are made to order and may take longer — check individual product page"
+    }
+  },
+
+  "faq": [
+    {
+      "question": "How long does delivery take?",
+      "answer": "Most orders are dispatched same-day and arrive within 2-4 working days. Solid wood and herringbone products may take a little longer due to pallet delivery or made-to-order patterns."
+    },
+    {
+      "question": "Is this in stock?",
+      "answer": "Yes, this product shows as in stock. Large orders are shipped via pallet; smaller orders via parcel courier."
+    },
+    {
+      "question": "How much is delivery?",
+      "answer": "Standard delivery is £4.95, and free on orders over £300."
+    },
+    {
+      "question": "Can I get a sample before I order?",
+      "answer": "Yes, free samples are available (up to 5 per order) and typically arrive within 2-3 working days."
+    }
+  ]
+}
