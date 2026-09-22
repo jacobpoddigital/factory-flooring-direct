@@ -1,44 +1,29 @@
-const http = require('http');
-const fs = require('fs');
+const express = require('express');
 const path = require('path');
 
-module.exports = (req, res) => {
+const app = express();
+
+// Serve static files
+app.use(express.static(path.join(__dirname, '..')));
+
+// Handle all routes to serve files with query string support
+app.get('*', (req, res) => {
   // Strip query string from URL
-  const urlWithoutQuery = req.url.split('?')[0];
-  const filePath = path.join(__dirname, '..', urlWithoutQuery === '/' ? 'index.html' : urlWithoutQuery);
+  const urlWithoutQuery = req.path === '/' ? '/index.html' : req.path;
+  const filePath = path.join(__dirname, '..', urlWithoutQuery);
 
   // Security: prevent directory traversal
-  if (!filePath.startsWith(path.join(__dirname, '..'))) {
-    res.status(403).end('Forbidden');
-    return;
+  const resolvedPath = path.resolve(filePath);
+  const rootPath = path.resolve(path.join(__dirname, '..'));
+  if (!resolvedPath.startsWith(rootPath)) {
+    return res.status(403).send('Forbidden');
   }
 
-  // If directory, try index.html
-  let finalPath = filePath;
-  if (fs.existsSync(filePath) && fs.statSync(filePath).isDirectory()) {
-    finalPath = path.join(filePath, 'index.html');
-  }
+  res.sendFile(filePath, (err) => {
+    if (err) {
+      res.status(404).send('Not Found');
+    }
+  });
+});
 
-  // Serve file if it exists
-  if (fs.existsSync(finalPath)) {
-    const ext = path.extname(finalPath);
-    const mimeTypes = {
-      '.html': 'text/html',
-      '.css': 'text/css',
-      '.js': 'text/javascript',
-      '.json': 'application/json',
-      '.png': 'image/png',
-      '.jpg': 'image/jpeg',
-      '.jpeg': 'image/jpeg',
-      '.gif': 'image/gif',
-      '.svg': 'image/svg+xml',
-      '.md': 'text/markdown',
-    };
-
-    const contentType = mimeTypes[ext] || 'application/octet-stream';
-    res.setHeader('Content-Type', contentType);
-    res.status(200).end(fs.readFileSync(finalPath));
-  } else {
-    res.status(404).end('Not Found');
-  }
-};
+module.exports = app;
