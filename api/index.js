@@ -5,7 +5,7 @@ const app = express();
 
 app.use(express.static(path.join(__dirname, '..')));
 
-app.get('*', (req, res) => {
+app.get('/*splat', (req, res) => {
   const urlPath = req.path === '/' ? '/index.html' : req.path;
   const filePath = path.join(__dirname, '..', urlPath);
 
