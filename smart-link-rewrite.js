@@ -29,6 +29,14 @@ const CATEGORY_REWRITES = {
 function rewriteLinksSmartly(html) {
   let modified = html;
 
+  // Step 0: Bare-root links (the logo, "Home" breadcrumb, etc) — must run before
+  // Step 1's wildcard-suffixed category matches, since a bare "/" would otherwise
+  // need its own exact-match rule to avoid accidentally matching every other path
+  modified = modified.replace(
+    /href="https:\/\/www\.factory-direct-flooring\.co\.uk\/"/g,
+    'href="/"'
+  );
+
   // Step 1: Rewrite category/info page links
   // Only rewrite href attributes that contain our known category paths
   Object.entries(CATEGORY_REWRITES).forEach(([realPath, localPath]) => {
