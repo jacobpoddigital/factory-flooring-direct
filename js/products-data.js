@@ -441,81 +441,12 @@ function wireSampleButton(container, product) {
 }
 
 // Render category page with products
-function renderCategoryPage(category) {
-  const products = getProductsByCategory(category);
-
-  if (products.length === 0) {
-    console.warn(`No products found for category: ${category}`);
-    return;
-  }
-
-  // Update category title
-  document.title = category + ' Flooring | Factory Direct Flooring';
-  const heading = document.querySelector('h1');
-  if (heading) heading.textContent = category + ' Flooring';
-
-  // Find product grid and render products. Every category page's <body> class
-  // includes "page-products" (confirmed: page-with-filter page-products
-  // categorypath-... catalog-category-view ...), and `[class*="products"]`
-  // substring-matches that — querySelector returns document-order first match,
-  // which is <body> itself, before the parser ever reaches the real grid deeper
-  // in the page. That silently replaced the ENTIRE page body (header, nav,
-  // footer, everything) with just the product cards on every single category
-  // page. The real grid's actual class is "products products-grid amscroll-page"
-  // (confirmed identical across all 6 category pages) -- ".products-grid" alone
-  // is specific enough that body never matches it.
-  const grid = document.querySelector('.products-grid, [class*="product-grid"]');
-  if (grid) {
-    // The real site's CSS lays this grid out via selectors targeting its own
-    // specific product-card markup/classes, which our injected cards don't
-    // match -- so without this, the cards fall back to stacking full-width
-    // instead of a multi-column grid. Setting the layout explicitly here
-    // means it works regardless of what CSS classes happen to exist.
-    grid.style.cssText = 'display:grid; grid-template-columns:repeat(3, 1fr); gap:1.5rem;';
-    grid.innerHTML = products.map(p => {
-      const alreadySampled = window.samples ? window.samples.has(p.id) : false;
-      return `
-      <div class="card-item card-product" style="border: 1px solid #ecf0f1; border-radius: 8px; overflow: hidden;">
-        <div style="aspect-ratio: 5/4; overflow: hidden; background: #f8f9fa;">
-          <img src="${p.image}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
-        </div>
-        <div style="padding: 1rem;">
-          <h3 style="font-size: 1rem; margin-bottom: 0.5rem;">
-            <a href="/product.html?id=${p.id}" style="color: inherit;">${p.name}</a>
-          </h3>
-          <div style="font-size: 1.2rem; font-weight: 700; color: #e74c3c; margin: 0.5rem 0;">
-            £${(p.price/100).toFixed(2)}<small style="font-size: 0.7em;">m<sup>2</sup></small>
-          </div>
-          <button onclick="window.cart.add({id: '${p.id}', name: '${p.name}', price: ${p.price}, image: '${p.image}', quantity: 1}); updateCartUI();" style="width: 100%; padding: 0.5rem; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-bottom: 0.5rem;">Add to Basket</button>
-          <button onclick="orderSample('${p.id}', '${p.name}', '${p.image}', '${p.category}', this)" ${alreadySampled ? 'disabled' : ''} style="width: 100%; padding: 0.5rem; background: ${alreadySampled ? '#e9e6f5' : '#fff'}; color: #6d28d9; border: 1px solid #6d28d9; border-radius: 4px; cursor: ${alreadySampled ? 'default' : 'pointer'}; font-weight: 600;">${alreadySampled ? '✓ Sample Added' : 'Order Free Sample'}</button>
-        </div>
-      </div>
-    `;
-    }).join('');
-  }
-}
-
-// Order a free sample and update the triggering button's state in place.
-// Shared by category grid cards and the product detail page's sample bar.
-function orderSample(id, name, image, category, buttonEl) {
-  const result = window.samples.add({ id, name, image, category });
-
-  if (!result.ok) {
-    if (result.reason === 'limit-reached') {
-      alert('You can order up to 2 free samples per basket. Remove one to add another.');
-    }
-    return;
-  }
-
-  if (buttonEl) {
-    buttonEl.textContent = '✓ Sample Added';
-    buttonEl.disabled = true;
-    buttonEl.style.cursor = 'default';
-    buttonEl.style.background = '#e9e6f5';
-  }
-
-  updateCartUI();
-}
+// Category pages are a real one-to-one capture of the live site -- the grid
+// already has the real products, real images, real prices, real layout. There's
+// no reason to touch any of that; it's a replica, not something to rebuild.
+// Kept as a no-op (rather than deleting it) so the per-page <script> tags that
+// call ProductsDB.renderCategoryPage('CategoryName') don't need editing.
+function renderCategoryPage(category) {}
 
 // Render the actual cart contents on cart.html. The captured page's own line-item
 // list is driven by the real site's Alpine "initCartForm()" component, which never
