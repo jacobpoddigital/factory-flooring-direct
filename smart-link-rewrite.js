@@ -23,6 +23,7 @@ const CATEGORY_REWRITES = {
   '/parquet-flooring': '/categories/herringbone.html', // closely overlapping product set with our Herringbone category (confirmed via live fetch)
   '/advice-centre': '/advice.html',
   '/about': '/about.html',
+  '/accessories': '/accessories.html', // confirmed real via live fetch — H1 "Flooring Accessories"
 };
 
 function rewriteLinksSmartly(html) {
@@ -95,6 +96,7 @@ async function main() {
     '/Users/jacobhedges/Projects/factory-flooring-direct/cart.html',
     '/Users/jacobhedges/Projects/factory-flooring-direct/about.html',
     '/Users/jacobhedges/Projects/factory-flooring-direct/advice.html',
+    '/Users/jacobhedges/Projects/factory-flooring-direct/accessories.html',
     '/Users/jacobhedges/Projects/factory-flooring-direct/categories/solid-wood.html',
     '/Users/jacobhedges/Projects/factory-flooring-direct/categories/engineered-wood.html',
     '/Users/jacobhedges/Projects/factory-flooring-direct/categories/laminate.html',
