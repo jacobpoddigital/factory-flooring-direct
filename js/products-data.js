@@ -471,7 +471,7 @@ function renderCategoryPage(category) {
     // match -- so without this, the cards fall back to stacking full-width
     // instead of a multi-column grid. Setting the layout explicitly here
     // means it works regardless of what CSS classes happen to exist.
-    grid.style.cssText = 'display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:1.5rem;';
+    grid.style.cssText = 'display:grid; grid-template-columns:repeat(3, 1fr); gap:1.5rem;';
     grid.innerHTML = products.map(p => {
       const alreadySampled = window.samples ? window.samples.has(p.id) : false;
       return `
