@@ -15,7 +15,7 @@
     "sample_delivery": {
       "cost": 0,
       "estimate": "2-3 working days",
-      "note": "Free samples, up to 5 per order"
+      "note": "Free samples, up to 2 per order"
     }
   },
 
@@ -62,7 +62,7 @@
     },
     {
       "question": "Can I get a sample before I order?",
-      "answer": "Yes, free samples are available (up to 5 per order) and typically arrive within 2-3 working days."
+      "answer": "Yes, free samples are available (up to 2 per order) and typically arrive within 2-3 working days."
     }
   ]
 }

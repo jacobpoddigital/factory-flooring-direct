@@ -104,7 +104,7 @@ window.cart = (() => {
 // can coexist with a full-price cart entry for the same product without the two
 // merging into one quantity.
 window.samples = (() => {
-  const MAX_SAMPLES = 5; // matches the real site's "up to 5 free samples" policy (data/delivery.json faq)
+  const MAX_SAMPLES = 2; // matches the real site's actual policy: "customers can order two samples per transaction" (factory-direct-flooring.co.uk/free-samples)
 
   function sampleId(productId) {
     return `sample-${productId}`;

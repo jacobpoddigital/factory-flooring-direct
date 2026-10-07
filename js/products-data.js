@@ -430,7 +430,7 @@ function wireSampleButton(container, product) {
 
     if (!result.ok) {
       if (result.reason === 'limit-reached') {
-        alert('You can order up to 5 free samples per basket. Remove one to add another.');
+        alert('You can order up to 2 free samples per basket. Remove one to add another.');
       }
       return;
     }
@@ -454,8 +454,17 @@ function renderCategoryPage(category) {
   const heading = document.querySelector('h1');
   if (heading) heading.textContent = category + ' Flooring';
 
-  // Find product grid and render products
-  const grid = document.querySelector('[class*="product-grid"], [class*="products"]');
+  // Find product grid and render products. Every category page's <body> class
+  // includes "page-products" (confirmed: page-with-filter page-products
+  // categorypath-... catalog-category-view ...), and `[class*="products"]`
+  // substring-matches that — querySelector returns document-order first match,
+  // which is <body> itself, before the parser ever reaches the real grid deeper
+  // in the page. That silently replaced the ENTIRE page body (header, nav,
+  // footer, everything) with just the product cards on every single category
+  // page. The real grid's actual class is "products products-grid amscroll-page"
+  // (confirmed identical across all 6 category pages) -- ".products-grid" alone
+  // is specific enough that body never matches it.
+  const grid = document.querySelector('.products-grid, [class*="product-grid"]');
   if (grid) {
     grid.innerHTML = products.map(p => {
       const alreadySampled = window.samples ? window.samples.has(p.id) : false;
@@ -487,7 +496,7 @@ function orderSample(id, name, image, category, buttonEl) {
 
   if (!result.ok) {
     if (result.reason === 'limit-reached') {
-      alert('You can order up to 5 free samples per basket. Remove one to add another.');
+      alert('You can order up to 2 free samples per basket. Remove one to add another.');
     }
     return;
   }
