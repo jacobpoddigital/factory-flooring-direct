@@ -96,7 +96,70 @@ window.cart = (() => {
   };
 })();
 
+// Samples module - exposes window.samples for ordering free samples per product.
+// Samples are just free line items in the SAME cart (window.cart), not a separate
+// basket -- this is simpler than maintaining parallel state and matches how the
+// real site's cart ultimately treats them (one order, one set of line items).
+// A sample line item is distinguished by a `sample-` id prefix and price 0, so it
+// can coexist with a full-price cart entry for the same product without the two
+// merging into one quantity.
+window.samples = (() => {
+  const MAX_SAMPLES = 5; // matches the real site's "up to 5 free samples" policy (data/delivery.json faq)
+
+  function sampleId(productId) {
+    return `sample-${productId}`;
+  }
+
+  function sampleItems() {
+    return window.cart.get().items.filter(item => item.id.startsWith('sample-'));
+  }
+
+  return {
+    // Returns { ok: true, cart } or { ok: false, reason: 'already-added' | 'limit-reached' }
+    add(product) {
+      if (this.has(product.id)) {
+        return { ok: false, reason: 'already-added' };
+      }
+
+      if (sampleItems().length >= MAX_SAMPLES) {
+        return { ok: false, reason: 'limit-reached' };
+      }
+
+      const cart = window.cart.add({
+        id: sampleId(product.id),
+        name: `${product.name} (Free Sample)`,
+        price: 0,
+        image: product.image,
+        quantity: 1,
+      });
+
+      return { ok: true, cart };
+    },
+
+    remove(productId) {
+      return window.cart.remove(sampleId(productId));
+    },
+
+    has(productId) {
+      return sampleItems().some(item => item.id === sampleId(productId));
+    },
+
+    get() {
+      const items = sampleItems();
+      return { items, itemCount: items.length, maxSamples: MAX_SAMPLES };
+    },
+
+    print() {
+      const items = sampleItems();
+      console.table(items);
+      console.log(`Samples: ${items.length}/${MAX_SAMPLES}`);
+      return items;
+    },
+  };
+})();
+
 // Expose products globally (will be populated from products.json)
 window.products = [];
 
 console.log('✅ Cart module loaded. Use window.cart.add({id, name, price, image, quantity}) to add items.');
+console.log('✅ Samples module loaded. Use window.samples.add({id, name, image, category}) to order a free sample.');

@@ -11609,15 +11609,7 @@ Having decided on what flooring I like best, I will be contacting Factory Direct
       // Route products and categories on page load
       document.addEventListener('DOMContentLoaded', async () => {
         await ProductsDB.load();
-
-        // If this is a product page with an ID, render it
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('id')) {
-          const product = ProductsDB.getProduct(params.get('id'));
-          if (product) {
-            ProductsDB.renderProductPage(product);
-          }
-        }
+        ProductsDB.renderCategoryPage('Solid Wood');
       });
     </script>
 

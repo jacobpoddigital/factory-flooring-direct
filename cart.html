@@ -6413,18 +6413,9 @@
     <script src="/js/products-data.js"></script>
     <script defer src="https://cdn.websiteavatar.co.uk/wa-agent.js?id=acct_factory-direct-flooring"></script>
     <script>
-      // Route products and categories on page load
       document.addEventListener('DOMContentLoaded', async () => {
         await ProductsDB.load();
-
-        // If this is a product page with an ID, render it
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('id')) {
-          const product = ProductsDB.getProduct(params.get('id'));
-          if (product) {
-            ProductsDB.renderProductPage(product);
-          }
-        }
+        ProductsDB.renderCartPage();
       });
     </script>
 

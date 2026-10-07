@@ -346,8 +346,13 @@ function renderProductPage(product) {
     // Add product to window for cart add button
     window.currentProduct = product;
 
-    // Find add to cart button and wire it
-    const addBtn = document.querySelector('[title*="Add to Basket"], button:contains("Add to Basket")');
+    // Find add to cart button and wire it. ":contains" is jQuery-only, not valid
+    // CSS -- querySelector throws a SyntaxError for the whole selector list when
+    // any part of it is invalid, which was silently aborting the rest of this
+    // function (including everything added after this block) on every product
+    // page load.
+    const addBtn = document.querySelector('[title*="Add to Basket"]') ||
+      Array.from(document.querySelectorAll('button')).find(b => b.textContent.includes('Add to Basket'));
     if (addBtn) {
       addBtn.onclick = () => {
         const qty = parseInt(document.querySelector('input[name="qty"], input[type="number"]')?.value || 1);
@@ -363,10 +368,76 @@ function renderProductPage(product) {
     }
   }
 
+  // Wire the real captured "order a free sample" buttons. This page's markup
+  // already has the real site's own sample UI (a ".product-sample" card near
+  // the description, and a ".sticky-sample" bar fixed to the bottom) with the
+  // real site's Alpine.js dispatch attributes baked in -- but Alpine itself
+  // never loads here (its CDN script 404s/CORS-fails from our origin), so
+  // those @click.prevent="$dispatch(...)" attributes are dead. Both containers
+  // follow the same structure: <template (not-added state)><a (the one LIVE,
+  // un-cloned anchor, since <template> contents aren't part of the rendered
+  // DOM without a JS framework to clone them)><template (added state)>. We
+  // only need to wire the one live anchor per container.
+  wireSampleButton(document.querySelector('.product-sample'), product);
+  wireSampleButton(document.querySelector('.sticky-sample'), product);
+
   // Authoritative signal for anything (e.g. Navigator's bridge) that wants to
   // react to product resolution instead of racing document.title/meta reads
   window.currentProduct = product;
   window.dispatchEvent(new CustomEvent('fdf:product-ready', { detail: product }));
+}
+
+// Both sample touchpoints on a product page (the inline ".product-sample" card
+// and the fixed ".sticky-sample" bar) are wired independently but represent the
+// same underlying state. Track every wired button for this page load so that
+// ordering a sample from one place repaints the other immediately too, instead
+// of leaving it visually stale until the next page load.
+const _wiredSampleButtons = [];
+
+function wireSampleButton(container, product) {
+  if (!container || !window.samples) return;
+
+  const link = Array.from(container.children).find(el => el.tagName === 'A');
+  if (!link) return;
+
+  // The inner <span class="btn ...">label</span> (product-sample card) carries
+  // the visible label text separately from the anchor's own text (which also
+  // includes the "Posted FREE, 1st Class" line); the sticky bar's anchor text
+  // IS the label. Handle both by preferring the inner span if present.
+  const labelEl = link.querySelector('span.btn') || link;
+  const addedLabel = labelEl === link ? 'Added' : 'Sample Added';
+  const notAddedLabel = labelEl.textContent.trim() || 'Order Free Sample';
+
+  function paint(isAdded) {
+    labelEl.textContent = isAdded ? addedLabel : notAddedLabel;
+    link.classList.toggle('pointer-events-none', isAdded);
+    link.style.opacity = isAdded ? '0.7' : '';
+  }
+
+  paint(window.samples.has(product.id));
+  _wiredSampleButtons.push(paint);
+
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (window.samples.has(product.id)) return;
+
+    const result = window.samples.add({
+      id: product.id,
+      name: product.name,
+      image: product.image,
+      category: product.category,
+    });
+
+    if (!result.ok) {
+      if (result.reason === 'limit-reached') {
+        alert('You can order up to 5 free samples per basket. Remove one to add another.');
+      }
+      return;
+    }
+
+    _wiredSampleButtons.forEach(p => p(true));
+    updateCartUI();
+  });
 }
 
 // Render category page with products
@@ -386,7 +457,9 @@ function renderCategoryPage(category) {
   // Find product grid and render products
   const grid = document.querySelector('[class*="product-grid"], [class*="products"]');
   if (grid) {
-    grid.innerHTML = products.map(p => `
+    grid.innerHTML = products.map(p => {
+      const alreadySampled = window.samples ? window.samples.has(p.id) : false;
+      return `
       <div class="card-item card-product" style="border: 1px solid #ecf0f1; border-radius: 8px; overflow: hidden;">
         <div style="aspect-ratio: 5/4; overflow: hidden; background: #f8f9fa;">
           <img src="${p.image}" alt="${p.name}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
@@ -398,11 +471,84 @@ function renderCategoryPage(category) {
           <div style="font-size: 1.2rem; font-weight: 700; color: #e74c3c; margin: 0.5rem 0;">
             £${(p.price/100).toFixed(2)}<small style="font-size: 0.7em;">m<sup>2</sup></small>
           </div>
-          <button onclick="window.cart.add({id: '${p.id}', name: '${p.name}', price: ${p.price}, image: '${p.image}', quantity: 1}); updateCartUI();" style="width: 100%; padding: 0.5rem; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Order Sample</button>
+          <button onclick="window.cart.add({id: '${p.id}', name: '${p.name}', price: ${p.price}, image: '${p.image}', quantity: 1}); updateCartUI();" style="width: 100%; padding: 0.5rem; background: #2c3e50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-bottom: 0.5rem;">Add to Basket</button>
+          <button onclick="orderSample('${p.id}', '${p.name}', '${p.image}', '${p.category}', this)" ${alreadySampled ? 'disabled' : ''} style="width: 100%; padding: 0.5rem; background: ${alreadySampled ? '#e9e6f5' : '#fff'}; color: #6d28d9; border: 1px solid #6d28d9; border-radius: 4px; cursor: ${alreadySampled ? 'default' : 'pointer'}; font-weight: 600;">${alreadySampled ? '✓ Sample Added' : 'Order Free Sample'}</button>
         </div>
       </div>
-    `).join('');
+    `;
+    }).join('');
   }
+}
+
+// Order a free sample and update the triggering button's state in place.
+// Shared by category grid cards and the product detail page's sample bar.
+function orderSample(id, name, image, category, buttonEl) {
+  const result = window.samples.add({ id, name, image, category });
+
+  if (!result.ok) {
+    if (result.reason === 'limit-reached') {
+      alert('You can order up to 5 free samples per basket. Remove one to add another.');
+    }
+    return;
+  }
+
+  if (buttonEl) {
+    buttonEl.textContent = '✓ Sample Added';
+    buttonEl.disabled = true;
+    buttonEl.style.cursor = 'default';
+    buttonEl.style.background = '#e9e6f5';
+  }
+
+  updateCartUI();
+}
+
+// Render the actual cart contents on cart.html. The captured page's own line-item
+// list is driven by the real site's Alpine "initCartForm()" component, which never
+// runs here (Alpine fails to load), so without this the page always shows the
+// static "cart-empty" state it happened to be captured in, regardless of what's
+// actually in window.cart. Free samples (id starting "sample-") show as "FREE"
+// with no quantity stepper, matching how they were added (fixed qty 1, no m² math).
+function renderCartPage() {
+  const container = document.querySelector('.cart-form');
+  if (!container) return;
+
+  const cart = window.cart.get();
+
+  if (cart.items.length === 0) {
+    container.innerHTML = `
+      <div class="cart-empty mb-8 text-center">
+        <img src="https://imagely.factory-direct-flooring.co.uk/static/version1789652328/frontend/Limely/fdf-hyva/en_GB/images/img-empty-basket.png" class="h-24 mb-4 inline-block">
+        <p class="font-bold text-xl mb-2">You have no items in your shopping basket.</p>
+        <p>Click <a href="/">here</a> to continue shopping.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const rows = cart.items.map(item => {
+    const isSample = item.id.startsWith('sample-');
+    return `
+      <div style="display:flex; align-items:center; gap:1rem; padding:1rem 0; border-bottom:1px solid #ecf0f1;">
+        <img src="${item.image}" alt="${item.name}" style="width:72px; height:72px; object-fit:cover; border-radius:4px;">
+        <div style="flex:1;">
+          <div style="font-weight:600;">${item.name}</div>
+          <div style="color:#6b7280; font-size:0.875rem;">${isSample ? 'Free sample' : `Qty: ${item.quantity}m²`}</div>
+        </div>
+        <div style="font-weight:700; min-width:80px; text-align:right;">
+          ${isSample ? '<span style="color:#16a34a;">FREE</span>' : '£' + ((item.price * item.quantity) / 100).toFixed(2)}
+        </div>
+        <button onclick="window.cart.remove('${item.id}'); renderCartPage(); updateCartUI();" style="background:none; border:none; color:#dc2626; cursor:pointer; font-size:0.875rem; text-decoration:underline;">Remove</button>
+      </div>
+    `;
+  }).join('');
+
+  container.innerHTML = `
+    <div>${rows}</div>
+    <div style="display:flex; justify-content:space-between; padding:1.5rem 0; font-size:1.25rem; font-weight:700;">
+      <span>Total</span>
+      <span>£${(cart.total / 100).toFixed(2)}</span>
+    </div>
+  `;
 }
 
 // Update cart UI from anywhere
@@ -436,5 +582,13 @@ window.ProductsDB = {
   renderProductPage,
   renderProductNotFound,
   renderCategoryPage,
+  renderCartPage,
   updateCartUI
 };
+
+// renderCartPage needs re-running whenever the cart changes (e.g. clicking
+// Remove on a line item, or adding something from another tab) while cart.html
+// is open, not just once on load.
+window.addEventListener('cart-updated', () => {
+  if (document.querySelector('.cart-form')) renderCartPage();
+});

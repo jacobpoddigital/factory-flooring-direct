@@ -12986,18 +12986,7 @@ Having decided on what flooring I like best, I will be contacting Factory Direct
     <script>
       document.addEventListener('DOMContentLoaded', async () => {
         await ProductsDB.load();
-        const params = new URLSearchParams(window.location.search);
-        if (params.has('category')) {
-          const category = params.get('category');
-          ProductsDB.renderCategoryPage(category);
-        } else {
-          // Default to rendering from category name
-          const pathname = window.location.pathname;
-          const match = pathname.match(//(w+)/);
-          if (match) {
-            ProductsDB.renderCategoryPage(match[1]);
-          }
-        }
+        ProductsDB.renderCategoryPage('Laminate');
       });
     </script>
 </body></html>
