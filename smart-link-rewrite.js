@@ -15,9 +15,12 @@ const CATEGORY_REWRITES = {
   '/laminate-flooring': '/categories/laminate.html',
   '/laminate': '/categories/laminate.html',
   '/vinyl-flooring': '/categories/vinyl.html',
-  '/lvt-flooring': '/categories/lvt.html',
+  '/lvt-flooring': '/categories/lvt.html', // wrong guess — kept for safety, see correct key below
+  '/luxury-vinyl-tiles': '/categories/lvt.html', // confirmed real slug via live fetch — H1 "LVT Flooring"
   '/herringbone-flooring': '/categories/herringbone.html',
   '/herringbone': '/categories/herringbone.html',
+  '/real-wood-flooring': '/categories/engineered-wood.html', // this IS the live site's Engineered Wood category URL (confirmed via live fetch — H1 "Engineered Wood Flooring"); our other key '/engineered-wood-flooring' was a wrong guess at the slug
+  '/parquet-flooring': '/categories/herringbone.html', // closely overlapping product set with our Herringbone category (confirmed via live fetch)
   '/advice-centre': '/advice.html',
   '/about': '/about.html',
 };
